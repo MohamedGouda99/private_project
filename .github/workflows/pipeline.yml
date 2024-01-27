@@ -1,0 +1,88 @@
+name: Build and Push Image to AWS ECR
+on:
+    push:
+        branches: [main]
+
+jobs:
+    build-and-push:
+        name: Build Image
+        runs-on: ubuntu-latest
+
+        steps:
+        
+        - name: Check out code
+          uses: actions/checkout@v2
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+            aws-region:  us-east-1
+
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+
+        - name: Build, tag, and push image of Database to Amazon ECR
+          env:
+            ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
+            ECR_REPOSITORY: nginx-app
+            IMAGE_TAG: ${{github.run_number }}
+          run: |
+            cd $GITHUB_WORKSPACE/db
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker  push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        
+        - name: Build, tag, and push image of APP to Amazon ECR
+          env:
+                ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
+                ECR_REPOSITORY: nginx-app
+                IMAGE_TAG: ${{github.run_number }}
+          run: |
+                cd $GITHUB_WORKSPACE/FlaskApp
+                docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+                docker  push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    
+    update-kubeconfig:
+        needs: build-and-push
+        name: update kubeconfig
+        runs-on: ubuntu-latest
+        steps:
+
+        - name: install kubectl
+          uses: azure/setup-kubectl@v2.0
+          with:
+            version: "v1.24.0"
+          id: install
+
+        - name: Configure  AWS credentials for Kubernetes
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+            aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+            aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Update kube config
+          run: aws eks update-kubeconfig --name hr-stag-eksdemo1 --region us-east-1
+
+        - name: Deploy kubernetes manifests
+
+          run: |
+            cd $GITHUB_WORKSPACE/k8s-manifests
+            # curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+            # chmod +x get_helm.sh
+            # ./get_helm.sh
+            # helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+            # helm repo update
+            # helm install ingress-nginx ingress-nginx/ingress-nginx
+            kubectl apply -f ConfigMap.yml
+            kubectl apply -f Deployment_flaskapp.yml
+            kubectl apply -f Ingress_NGINX_controller.yml
+            kubectl apply -f Secrets.yml
+            kubectl apply -f Services.yml
+            kubectl apply -f Statefulset_db.yml
+
