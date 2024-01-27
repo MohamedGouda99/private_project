@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: flask-app   # Container name
-          image: 147483643341.dkr.ecr.us-east-1.amazonaws.com/nginx-app:${{github.run_number }}
+          image: 147483643341.dkr.ecr.us-east-1.amazonaws.com/nginx-app:app
           # Container image with build number variable
           ports:
             - containerPort: 5000   # Port the container listens on
