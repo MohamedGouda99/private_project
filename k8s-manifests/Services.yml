@@ -30,7 +30,7 @@ spec:
 
 ---
 
-# Define a PersistentVolume for MySQL data
+# Define a PersistentVolume for MySQL data           
 apiVersion: v1
 kind: PersistentVolume
 metadata:
