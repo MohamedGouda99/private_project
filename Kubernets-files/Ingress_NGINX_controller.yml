@@ -8,7 +8,8 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /   # Rewrite the path to root ("/")
 spec:
   rules:
-    - http:
+    - host: a855a454ee29c4d7eaae9db25d7a3ef7-187198779.us-east-1.elb.amazonaws.com
+      http:
         paths:
           - path: /   # Path to match for the Ingress
             pathType: Prefix   # Type of path matching

@@ -31,8 +31,8 @@ jobs:
             IMAGE_TAG: ${{github.run_number }}
           run: |
             cd $GITHUB_WORKSPACE/MySQL-and-Python/MySQL_Queries
-            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:db_${{github.run_number }} .
-            docker  push $ECR_REGISTRY/$ECR_REPOSITORY:db_${{github.run_number }}
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:db .
+            docker  push $ECR_REGISTRY/$ECR_REPOSITORY:db
         
         - name: Build, tag, and push image of APP to Amazon ECR
           env:
@@ -41,8 +41,8 @@ jobs:
                 IMAGE_TAG: ${{github.run_number }}
           run: |
                 cd $GITHUB_WORKSPACE/MySQL-and-Python/FlaskApp
-                docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:app_${{github.run_number }} .
-                docker  push $ECR_REGISTRY/$ECR_REPOSITORY:app_${{github.run_number }}
+                docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:app .
+                docker  push $ECR_REGISTRY/$ECR_REPOSITORY:app
     
     update-kubeconfig:
         needs: build-and-push

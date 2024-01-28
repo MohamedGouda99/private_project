@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mysql   # Container name
-          image: 014027180939.dkr.ecr.us-east-1.amazonaws.com/nginx-app:db_${{github.run_number }}   # Container image with build number variable
+          image: 014027180939.dkr.ecr.us-east-1.amazonaws.com/nginx-app:db_8   # Container image with build number variable
           ports:
             - containerPort: 3306   # Port the container listens on
           volumeMounts:
