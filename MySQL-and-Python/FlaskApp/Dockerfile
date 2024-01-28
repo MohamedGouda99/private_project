@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.8
 
 # Set the working directory inside the container to /app
 WORKDIR /app
@@ -8,10 +8,10 @@ WORKDIR /app
 RUN pip install flask flask_mysqldb
 
 # Copy the rest of the FlaskApp files from the host to the /app directory in the container
-COPY MySQL-and-Python/FlaskApp /app
+COPY . /app
 
 EXPOSE 5000
-# Set the command to be executed when the container starts
+# Set the command tdo be executed when the container starts
 CMD ["python3", "app.py"]
 
 
