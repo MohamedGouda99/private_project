@@ -30,7 +30,7 @@ jobs:
             ECR_REPOSITORY: nginx-app
             IMAGE_TAG: ${{github.run_number }}
           run: |
-            cd $GITHUB_WORKSPACE/db
+            cd $GITHUB_WORKSPACE/MySQL-and-Python/MySQL_Queries
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:db .
             docker  push $ECR_REGISTRY/$ECR_REPOSITORY:db
         
@@ -40,7 +40,7 @@ jobs:
                 ECR_REPOSITORY: nginx-app
                 IMAGE_TAG: ${{github.run_number }}
           run: |
-                cd $GITHUB_WORKSPACE/FlaskApp
+                cd $GITHUB_WORKSPACE/MySQL-and-Python/FlaskApp
                 docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:app .
                 docker  push $ECR_REGISTRY/$ECR_REPOSITORY:app
     
@@ -72,7 +72,7 @@ jobs:
         - name: Deploy kubernetes manifests
 
           run: |
-            cd $GITHUB_WORKSPACE/k8s-manifests
+            cd $GITHUB_WORKSPACE/Kubernets-files
             # curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
             # chmod +x get_helm.sh
             # ./get_helm.sh
@@ -80,9 +80,12 @@ jobs:
             # helm repo update
             # helm install ingress-nginx ingress-nginx/ingress-nginx
             kubectl apply -f ConfigMap.yml
-            kubectl apply -f Deployment_flaskapp.yml
-            kubectl apply -f Ingress_NGINX_controller.yml
             kubectl apply -f Secrets.yml
             kubectl apply -f Services.yml
+            kubectl apply -f Deployment_flaskapp.yml
             kubectl apply -f Statefulset_db.yml
+            kubectl apply -f Ingress_NGINX_controller.yml
+            
+            
+            
 

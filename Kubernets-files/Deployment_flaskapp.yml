@@ -1,0 +1,63 @@
+# Define a Kubernetes Deployment for the Flask app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment  # The name of the deployment
+
+# Specify the deployment specification
+spec:
+  replicas: 1   # Number of desired replicas (pods)
+  selector:
+    matchLabels:
+      app: flask-app   # Selector labels to match pods
+  template:
+    metadata:
+      labels:
+        app: flask-app   # Labels for pods created by this deployment
+    spec:
+      containers:
+        - name: flask-app   # Container name
+          image: "your ecr url":build-${BUILD_NUMBER}-app
+          # Container image with build number variable
+          ports:
+            - containerPort: 5000   # Port the container listens on
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:   # Resource limits and requests for the container
+            limits:
+              cpu: "0.5"   # CPU limit
+              memory: "512Mi"   # Memory limit
+            requests:
+              cpu: "0.1"   # CPU request
+              memory: "128Mi"   # Memory request
+          env:   # Environment variables for the container
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: flask-app-config
+                  key: MYSQL_USER
+            - name: MYSQL_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: flask-app-config
+                  key: MYSQL_DB
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: flask-app-config
+                  key: MYSQL_HOST
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MYSQL_PASSWORD
